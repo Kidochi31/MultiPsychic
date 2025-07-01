@@ -3,16 +3,22 @@ from vector2 import Vector2
 from psychics import Circle, Line
 
 class Rigidbody:
-    def __init__(self, collider: Circle, mass: int, gravity: Vector2):
+    def __init__(self, collider: Circle, mass: int, gravity: Vector2, air_resistance_times_1000: int):
         self.collider = collider
         self.mass = mass
         self.velocity = Vector2(0,0)
         self.gravity = gravity
+        self.air_resistance_times_1000 = air_resistance_times_1000
     
     def timestep(self, dt: int):
+        air_resistance = -self.velocity * self.air_resistance_times_1000 * self.velocity.magnitude() // 1_00_000_000
+        acceleration = air_resistance + self.gravity
+        print(f"acceleration: {acceleration}")
         
-        self.collider.position += self.velocity * dt + self.gravity * dt * dt // 2
-        self.velocity += self.gravity * dt
+
+        self.collider.position += self.velocity * dt + acceleration * dt * dt // 2
+        self.velocity += acceleration * dt
+        print(f"velocity: {self.velocity}")
     
 
         
@@ -23,20 +29,16 @@ def resolve_rigidbody_line_collision(rigidbodies: list[Rigidbody], lines: list[L
             collider = rigidbody.collider
             if collides(collider, line):
                 displacement = line.angle.sin_times(collider.position.x - line.position.x) + line.angle.cos_times(line.position.y - collider.position.y)
-                print(displacement)
                 abs_displacement = abs(displacement)
                 displacement_vector = line.angle.rotate_counterclockwise().times_normal(displacement) # this is from centre circle to line
-                print(displacement_vector)
-                print(displacement_vector.magnitude())
                 # the vector from the edge of the circle to the line is in the opposite direction, with a magnitude of radius - magnitude of displacement
                 resolution_vector = -displacement_vector * collider.radius // abs_displacement + displacement_vector # // abs_displacement
-                print(f"resolution: {resolution_vector}")
 
                 # now need to resolve collider's position
                 collider.position += resolution_vector
 
                 # remove all parts of the rigidbody's velocity in the direction of the line
-                velocity_excess = displacement_vector * 2 * rigidbody.velocity.dot_product(displacement_vector) // abs_displacement // abs_displacement # no * 2 to just cancel out velocity
+                velocity_excess = displacement_vector * rigidbody.velocity.dot_product(displacement_vector) // abs_displacement // abs_displacement # no * 2 to just cancel out velocity
                 rigidbody.velocity -= velocity_excess
 
 def resolve_rigidbody_circle_collisions(rigidbodies: list[Rigidbody]):

@@ -31,6 +31,21 @@ class Circle:
     def add_area(self, area: float):
         self.radius = int(math.sqrt((self.area() + area) / math.pi))
 
+class LineSegment:
+    def __init__(self, pos1: Vector2 | tuple[int, int], pos2: Vector2 | tuple[int, int], velocity: Vector2 | tuple[int, int]):
+        if isinstance(pos1, tuple):
+            self.pos1 = Vector2(pos1[0], pos1[1])
+        else:
+            self.pos1 = pos1
+        if isinstance(pos2, tuple):
+            self.pos2 = Vector2(pos2[0], pos2[1])
+        else:
+            self.pos2 = pos2
+        if isinstance(velocity, tuple):
+            self.velocity = Vector2(velocity[0], velocity[1])
+        else:
+            self.velocity = velocity
+
 class Line:
     def __init__(self, position: Vector2 | tuple[int, int], angle: Vector2):
         if isinstance(position, tuple):

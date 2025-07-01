@@ -1,5 +1,21 @@
 from math import sqrt
 
+class Fraction:
+    def __init__(self, numerator: int, denominator: int):
+        self.numerator = numerator
+        self.denominator = denominator
+    
+    def __repr__(self) -> str:
+        return f"Fraction({self.numerator}, {self.denominator})"
+
+    def __str__(self) -> str:
+        return f"({self.numerator}/{self.denominator})"
+    
+    def __mul__(self, other: int) -> int:
+        return other * self.numerator // self.denominator
+    
+
+
 class Vector2:
     def __init__(self, x: int, y: int):
         self.x = x
@@ -30,7 +46,7 @@ class Vector2:
         return Vector2(self.x, self.y)
     
     def magnitude(self) -> int:
-        return int(sqrt(self.x * self.x + self.y * self.y))
+        return int_sqrt(self.x * self.x + self.y * self.y)
     
     def sqr_magnitude(self) -> int:
         return self.x * self.x + self.y * self.y
@@ -76,3 +92,20 @@ class Vector2:
 
     def rotate_clockwise(self) -> 'Vector2':
         return Vector2(self.y, -self.x)
+
+def int_sqrt(a: int) -> int:
+    if a < 0:
+        raise Exception("cannot find square root of a negative number")
+    if a == 0:
+        return 0
+    if a == 1:
+        return 1
+    
+    estimate = a // 2
+    prev_estimate = estimate
+    while True:
+        estimate = (estimate * estimate + a) // 2 // estimate
+        if prev_estimate == estimate:
+            break
+        prev_estimate = estimate
+    return estimate

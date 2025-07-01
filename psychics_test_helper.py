@@ -1,6 +1,6 @@
 import pygame
 from pygame import Surface, Color
-from psychics import Circle, Line, AABB
+from psychics import Circle, Line, AABB, LineSegment
 from vector2 import Vector2
 
 def convert_world_to_screen_position(screen:Surface, position: Vector2) -> tuple[float, float]:
@@ -24,3 +24,6 @@ def draw_line(screen: Surface, line: Line, color: Color, aabb: AABB):
         return
     a, b = positions
     pygame.draw.line(screen, color, convert_world_to_screen_position(screen, a), convert_world_to_screen_position(screen, b), 5)
+
+def draw_line_segment(screen: Surface, line_segment: LineSegment, color: Color):
+    pygame.draw.line(screen, color, convert_world_to_screen_position(screen, line_segment.pos1), convert_world_to_screen_position(screen,  line_segment.pos2), 5)

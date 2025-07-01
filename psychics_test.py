@@ -3,8 +3,8 @@ import pygame
 import math
 from pygame import Color
 from pygame.mixer import Sound
-from psychics_test_helper import draw_circle, draw_image_to_circle, draw_line
-from psychics import Circle, Line, AABB
+from psychics_test_helper import draw_circle, draw_image_to_circle, draw_line, draw_line_segment
+from psychics import Circle, Line, AABB, LineSegment
 from collisions import collides
 from vector2 import Vector2
 from random import randint, random
@@ -26,9 +26,10 @@ def main():
     aabb = AABB((-screen.get_width() * 1_000_000//2, screen.get_height()* 1_000_000//2 ), (screen.get_width() * 1_000_000//2, -screen.get_height() * 1_000_000//2))
 
     circles : list[Circle] = [Circle((0, 0), 50_000_000)]
-    lines: list[Line] = [Line((0, -200_000_000), Vector2(100,33)), Line((0, -200_000_000), Vector2(100,-33))]
+    lines: list[Line] = [Line((0, -200_000_000), Vector2(1,0)), Line((0, -200_000_000), Vector2(100,-33))]
     collider_lines: list[Line] = lines
-    rigidbodies : list[Rigidbody] = [Rigidbody(circles[0], circles[0].radius ** 2, Vector2(0, -500))]
+    line_segments: list[LineSegment] = [LineSegment((0,0), (0, 50_000_000), (0,0))]
+    rigidbodies : list[Rigidbody] = [Rigidbody(circles[0], circles[0].radius ** 2, Vector2(0, -500), 1)]
 
     # Run until the user asks to quit
     running = True
@@ -42,7 +43,7 @@ def main():
                 if event.key == pygame.K_a:
                     circle = Circle(Vector2(randint(-screen.get_width() * 1_000_000 //2, screen.get_width()* 1_000_000//2), randint(-screen.get_height()//2* 1_000_000, screen.get_height()//2* 1_000_000)), randint(10_000_000, 100_000_000))
                     circles.append(circle)
-                    rigidbodies.append(Rigidbody(circle, circle.radius ** 2, Vector2(0, -500)))
+                    rigidbodies.append(Rigidbody(circle, circle.radius ** 2, Vector2(0, -500), 1))
                     hibaby.play()
                 if event.key == pygame.K_l:
                     lines.append(Line(Vector2(randint(-screen.get_width()//2 * 1_000_000, screen.get_width()//2 * 1_000_000), randint(-screen.get_height() //2 * 1_000_000, screen.get_height()//2 * 1_000_000)), random() * math.pi))
@@ -72,6 +73,9 @@ def main():
         for line in lines:
             draw_line(screen, line, Color(0,0,0), aabb)
         
+        for ls in line_segments:
+            draw_line_segment(screen, ls, Color(0,0,0))
+        
         total_energy = get_total_energy(rigidbodies, Vector2(0, -200))
         GAME_FONT.render_to(screen, (20, 20), f"Energy: {total_energy}", (0, 0, 0))
 
@@ -89,7 +93,7 @@ def get_total_energy(circles: list[Rigidbody], relative_to_position: Vector2) ->
 def get_total_kinetic_energy(circles: list[Rigidbody]) -> float:
     energy = 0
     for circle in circles[0:1]:
-        energy += 0.5 * circle.mass * (circle.velocity.magnitude())**2
+        energy += circle.mass * (circle.velocity.magnitude())**2 // 2
     return energy
 
 def get_total_gravitational_energy(circles: list[Rigidbody], relative_to_position: Vector2) -> float:
